@@ -94,8 +94,25 @@ func ProtoToConfigSchema(b *proto.Schema_Block) *configschema.Block {
 }
 
 func schemaNestedBlock(b *proto.Schema_NestedBlock) *configschema.NestedBlock {
+	var nesting configschema.NestingMode
+	switch b.Nesting {
+	case proto.Schema_NestedBlock_SINGLE:
+		nesting = configschema.NestingSingle
+	case proto.Schema_NestedBlock_GROUP:
+		nesting = configschema.NestingGroup
+	case proto.Schema_NestedBlock_LIST:
+		nesting = configschema.NestingList
+	case proto.Schema_NestedBlock_MAP:
+		nesting = configschema.NestingMap
+	case proto.Schema_NestedBlock_SET:
+		nesting = configschema.NestingSet
+	default:
+		// In all other cases we'll leave it as the zero value (invalid) and
+		// let the caller validate it and deal with this.
+	}
+
 	nb := &configschema.NestedBlock{
-		Nesting:  configschema.NestingMode(b.Nesting),
+		Nesting:  nesting,
 		MinItems: int(b.MinItems),
 		MaxItems: int(b.MaxItems),
 	}
